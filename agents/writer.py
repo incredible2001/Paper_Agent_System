@@ -179,6 +179,33 @@ def _build_initial_prompt(
 {original_references}
 """
 
+    # 目标期刊配置
+    target_journal_name = user_input.get("target_journal_name", "")
+    journal_requirements = user_input.get("journal_requirements", "")
+    reference_paper = user_input.get("reference_paper", "")
+
+    journal_section = ""
+    if target_journal_name:
+        journal_section = f"""
+## 目标期刊
+
+期刊名称: {target_journal_name}
+"""
+    if journal_requirements:
+        journal_section += f"""
+### 稿件要求
+
+{journal_requirements[:3000]}
+"""
+    if reference_paper:
+        journal_section += f"""
+### 参考论文（风格参考）
+
+以下是目标期刊已发表的类似论文，请参考其写作风格、结构和表达方式：
+
+{reference_paper[:4000]}
+"""
+
     prompt = f"""你是一位学术论文撰写师。请根据以下信息撰写论文初稿。
 
 **重要：你必须基于用户提供的原始论文内容进行改写和完善，绝对不得编造数据、患者数量、统计结果或参考文献。所有数据必须来自原始内容。**
@@ -190,6 +217,8 @@ def _build_initial_prompt(
 - 创新点: {', '.join(requirement.get('key_innovations', []))}
 
 {original_section}
+
+{journal_section}
 
 ## 论文大纲
 
@@ -211,6 +240,7 @@ def _build_initial_prompt(
 3. 按照论文大纲的结构组织内容
 4. 学术语言规范，逻辑清晰
 5. 正确使用引用标记 [n]
+6. **遵循目标期刊的稿件要求和风格**（如有提供）
 
 输出 JSON 格式:
 

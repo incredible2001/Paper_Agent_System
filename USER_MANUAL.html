@@ -921,6 +921,31 @@ References:
 
             <h3>5.4 reviewer_a_profile.txt / reviewer_b_profile.txt（可选）</h3>
             <p>审稿人特点描述，详见<a href="#reviewer">第9节：审稿人特点配置</a>。</p>
+
+            <h3>5.5 目标期刊配置（可选）</h3>
+            <p>在 <code>project_config.yaml</code> 中配置目标期刊信息，系统会根据期刊要求调整写作风格：</p>
+            <pre><code># 目标期刊配置
+target_journal:
+  name: "Journal of Nuclear Medicine"  # 期刊名称
+  requirements: |
+    稿件要求：
+    - 字数限制：4000词
+    - 参考文献格式：Vancouver
+    - 摘要结构：Background, Methods, Results, Conclusions
+    - 图表限制：6个
+  reference_paper: "input/reference_paper.txt"  # 参考论文路径</code></pre>
+
+            <h4>参考论文</h4>
+            <p>在 <code>input/reference_paper.txt</code> 中粘贴一篇目标期刊已发表的类似论文，系统会参考其：</p>
+            <ul>
+                <li>写作风格和语气</li>
+                <li>文章结构</li>
+                <li>段落组织方式</li>
+                <li>学术表达习惯</li>
+            </ul>
+            <div class="tip">
+                <p>建议选择与你研究主题相似、近期发表的论文作为参考。</p>
+            </div>
         </section>
 
         <!-- 6. 配置详解 -->

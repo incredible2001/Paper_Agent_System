@@ -12,6 +12,14 @@ input:
   draft_file: "input/draft.docx"  # 可选
   llm_config_file: "input/llm_config.yaml"  # LLM 模型配置文件（可选）
 
+# 目标期刊配置
+target_journal:
+  name: ""  # 期刊名称，如 "Journal of Nuclear Medicine"
+  # 期刊稿件要求（可选，支持多行文本或文件路径）
+  requirements: ""
+  # 参考论文（可选，放一篇目标期刊已发表的类似论文作为风格参考）
+  reference_paper: "input/reference_paper.txt"  # 或直接在此填写内容
+
 # 数据与分析
 data:
   original_dir: "data/original"

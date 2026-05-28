@@ -1,0 +1,25 @@
+# 参考论文（风格参考）
+#
+# 在此粘贴目标期刊已发表的类似论文全文或摘要
+# 系统会参考其写作风格、结构和表达方式
+#
+# 提示：
+# 1. 选择与你研究主题相似的论文
+# 2. 选择目标期刊近期发表的论文
+# 3. 可以只放摘要部分，也可以放全文
+#
+# 示例格式：
+#
+# Title: Example Paper Title
+# Authors: Author1, Author2, et al.
+# Journal: Journal Name
+# Year: 2024
+#
+# Abstract:
+# Background: ...
+# Methods: ...
+# Results: ...
+# Conclusions: ...
+#
+# Introduction:
+# ...

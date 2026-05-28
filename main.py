@@ -119,12 +119,12 @@ def decision_node(state: GraphState) -> dict:
     logger.info(f"Reviewer A: {verdict_a}, Reviewer B: {verdict_b}")
     logger.info(f"Outer loop: {outer_loop_count}/{max_outer}")
 
-    # 检查是否达到最大外循环
+    # 检查是否达到最大外循环 - 达到后进入终稿阶段
     if outer_loop_count >= max_outer:
-        logger.info("Max outer loops reached. Stopping.")
+        logger.info(f"Max outer loops ({max_outer}) reached. Proceeding to final.")
         return {
-            "next_action": "stop",
-            "messages": [{"role": "decision", "content": f"达到最大修改次数 ({max_outer})，流程终止"}],
+            "next_action": "minor_revise",
+            "messages": [{"role": "decision", "content": f"达到最大修改次数 ({max_outer})，进入终稿阶段"}],
         }
 
     # 根据审稿意见决定
@@ -692,6 +692,28 @@ def _load_user_input(project_path: str, project_config: dict) -> dict:
         with open(reviewer_b_path, "r", encoding="utf-8") as f:
             user_input["reviewer_b_profile"] = f.read().strip()
 
+    # 读取目标期刊配置
+    target_journal = project_config.get("target_journal", {})
+    journal_name = target_journal.get("name", "")
+    if journal_name:
+        user_input["target_journal_name"] = journal_name
+
+    # 期刊稿件要求
+    journal_requirements = target_journal.get("requirements", "")
+    if journal_requirements:
+        user_input["journal_requirements"] = journal_requirements
+
+    # 参考论文
+    reference_paper = target_journal.get("reference_paper", "")
+    if reference_paper:
+        # 检查是否是文件路径
+        if os.path.exists(os.path.join(project_path, reference_paper)):
+            with open(os.path.join(project_path, reference_paper), "r", encoding="utf-8") as f:
+                user_input["reference_paper"] = f.read().strip()
+        else:
+            # 直接作为内容使用
+            user_input["reference_paper"] = reference_paper
+
     return user_input
 
 
@@ -712,6 +734,7 @@ def _load_llm_config(project_path: str, project_config: dict) -> dict:
         dict: 合并后的 LLM 配置
     """
     import yaml
+    logger = logging.getLogger("llm_config")
 
     # 1. 从 project_config.yaml 获取基础配置
     llm_config = project_config.get("llm_config", {})
