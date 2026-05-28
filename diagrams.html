@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Agent System - 架构图与工作流图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .diagram-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .diagram-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.8em;
+        }
+        .diagram-section h3 {
+            color: #555;
+            margin: 20px 0 15px 0;
+            font-size: 1.3em;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 20px 0;
+            min-height: 300px;
+        }
+        .description {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .nav a {
+            display: block;
+            color: #667eea;
+            text-decoration: none;
+            padding: 5px 0;
+            font-weight: 500;
+        }
+        .nav a:hover {
+            color: #764ba2;
+        }
+        .diagram-wrapper {
+            overflow-x: auto;
+            padding: 10px;
+        }
+        .feature-highlight {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .feature-highlight h4 {
+            color: #2E7D32;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="#architecture">系统架构图</a>
+        <a href="#workflow">工作流程图</a>
+        <a href="#features">新功能说明</a>
+    </nav>
+
+    <div class="container">
+        <h1>Paper Agent System 架构与工作流</h1>
+
+        <section id="architecture" class="diagram-section">
+            <h2>系统架构图</h2>
+            <p class="description">
+                展示了 Paper Agent System 的整体架构，包括输入层、智能体层、输出层和配置层四个主要组件。
+                <strong>新增功能</strong>：审稿人特点输入、大纲版本管理。
+            </p>
+
+            <h3>整体架构</h3>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+graph LR
+    subgraph Input["📥 输入层"]
+        A1["abstract.txt<br/>用户论文"]
+        A2["advisor_feedback.txt<br/>导师建议"]
+        A3["data/<br/>数据与分析脚本"]
+        A4["reviewer_a_profile.txt<br/>审稿人A特点"]
+        A5["reviewer_b_profile.txt<br/>审稿人B特点"]
+    end
+
+    subgraph Agents["🤖 智能体层"]
+        B1["Analyst<br/>需求分析师"]
+        B2["Literature<br/>文献检索与验证"]
+        B3["Outliner<br/>大纲生成"]
+        B4["Writer<br/>论文撰写"]
+        B5["Checker<br/>质量检查"]
+        B6["Reviewer A<br/>审稿人A"]
+        B7["Reviewer B<br/>审稿人B"]
+        B8["Decision<br/>决策节点"]
+        B9["Translator<br/>中文翻译"]
+    end
+
+    subgraph Output["📤 输出层"]
+        C1["drafts/<br/>草稿版本"]
+        C2["reviews/<br/>审稿意见"]
+        C3["final/<br/>终稿 DOCX"]
+        C4["state_snapshots/<br/>状态快照"]
+        C5["outlines/<br/>大纲版本"]
+        C6["修改总结报告<br/>Markdown"]
+    end
+
+    subgraph Config["⚙️ 配置层"]
+        D1["config.yaml<br/>全局配置"]
+        D2["project_config.yaml<br/>项目配置"]
+        D3[".env<br/>API 密钥"]
+    end
+
+    A1 --> B1
+    A2 --> B1
+    A3 --> B4
+    A4 --> B6
+    A5 --> B7
+
+    B1 --> B2
+    B1 --> B3
+    B2 --> B3
+    B3 --> B4
+    B4 --> B5
+
+    B5 -->|Pass| B6
+    B5 -->|Pass| B7
+    B5 -->|Fail| B4
+
+    B6 --> B8
+    B7 --> B8
+
+    B8 -->|Major Revise| B4
+    B8 -->|Accept / Minor| B9
+
+    B9 --> C3
+    B4 -.-> C1
+    B8 -.-> C2
+    B5 -.-> C4
+    B3 -.-> C5
+    B4 -.-> C5
+    B8 -.-> C6
+
+    style Input fill:#E3F2FD,stroke:#1565C0,color:#000
+    style Agents fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style Output fill:#FCE4EC,stroke:#C62828,color:#000
+    style Config fill:#F3E5F5,stroke:#6A1B9A,color:#000
+
+    style A4 fill:#BBDEFB,stroke:#1565C0,color:#000
+    style A5 fill:#BBDEFB,stroke:#1565C0,color:#000
+    style B6 fill:#FFF9C4,stroke:#F57F17,color:#000
+    style B7 fill:#FFF9C4,stroke:#F57F17,color:#000
+    style B8 fill:#FFE0B2,stroke:#E65100,color:#000
+    style C5 fill:#F8BBD0,stroke:#C62828,color:#000
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #E3F2FD; border: 2px solid #1565C0;"></div>
+                    <span>输入层</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #BBDEFB; border: 2px solid #1565C0;"></div>
+                    <span>新增输入</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #E8F5E9; border: 2px solid #2E7D32;"></div>
+                    <span>智能体层</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FCE4EC; border: 2px solid #C62828;"></div>
+                    <span>输出层</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #F8BBD0; border: 2px solid #C62828;"></div>
+                    <span>新增输出</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #F3E5F5; border: 2px solid #6A1B9A;"></div>
+                    <span>配置层</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FFF9C4; border: 2px solid #F57F17;"></div>
+                    <span>审稿节点</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FFE0B2; border: 2px solid #E65100;"></div>
+                    <span>决策节点</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="workflow" class="diagram-section">
+            <h2>工作流程图</h2>
+            <p class="description">
+                展示了论文从需求分析到最终输出的完整工作流程，包括大纲版本管理、质量检查、审稿和翻译等关键环节。
+            </p>
+
+            <h3>完整工作流程</h3>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart LR
+    START([🟢 START]) --> A[Analyst<br/>需求分析]
+    A --> B[Literature<br/>文献检索与验证]
+    A --> C[Outliner<br/>大纲生成]
+    B --> C
+    C --> C1[保存大纲 v1]
+    C1 --> D[Writer<br/>论文撰写]
+    D --> E[Checker<br/>质量检查]
+
+    E -->|Fail| D
+    E -->|Pass| F{Parallel<br/>Review}
+
+    F --> G[Reviewer A<br/>创新性/方法]
+    F --> H[Reviewer B<br/>结果/讨论]
+
+    G --> I{Decision<br/>决策}
+    H --> I
+
+    I -->|Accept| K[Translator<br/>中文翻译]
+    I -->|Minor Revise| K
+    I -->|Major Revise| D2[更新大纲 v2]
+    D2 --> D
+
+    K --> L([📄 Final Output])
+
+    L --> L1[英文版.docx]
+    L --> L2[中文版.docx]
+    L --> L3[总结报告.md]
+    L --> L4[大纲版本历史]
+
+    L1 --> END([🔴 END])
+    L2 --> END
+    L3 --> END
+    L4 --> END
+
+    style START fill:#4CAF50,stroke:#2E7D32,color:#fff
+    style END fill:#F44336,stroke:#B71C1C,color:#fff
+    style A fill:#2196F3,stroke:#0D47A1,color:#fff
+    style B fill:#2196F3,stroke:#0D47A1,color:#fff
+    style C fill:#2196F3,stroke:#0D47A1,color:#fff
+    style C1 fill:#90CAF9,stroke:#0D47A1,color:#fff
+    style D fill:#2196F3,stroke:#0D47A1,color:#fff
+    style D2 fill:#90CAF9,stroke:#0D47A1,color:#fff
+    style E fill:#2196F3,stroke:#0D47A1,color:#fff
+    style F fill:#00BCD4,stroke:#006064,color:#fff
+    style G fill:#00BCD4,stroke:#006064,color:#fff
+    style H fill:#00BCD4,stroke:#006064,color:#fff
+    style I fill:#FF9800,stroke:#E65100,color:#fff
+    style K fill:#2196F3,stroke:#0D47A1,color:#fff
+    style L fill:#F44336,stroke:#B71C1C,color:#fff
+    style L1 fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style L2 fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style L3 fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style L4 fill:#F8BBD0,stroke:#C62828,color:#000
+                </div>
+            </div>
+
+            <h3>流程说明</h3>
+            <div class="description">
+                <p><strong>主要流程：</strong></p>
+                <ol>
+                    <li><strong>需求分析</strong> (Analyst) - 分析用户论文和导师建议</li>
+                    <li><strong>文献检索与验证</strong> (Literature) - 根据论文内容生成PubMed检索式、检索文献、验证参考文献</li>
+                    <li><strong>大纲生成</strong> (Outliner) - 生成论文大纲并保存 v1</li>
+                    <li><strong>论文撰写</strong> (Writer) - 撰写论文内容</li>
+                    <li><strong>质量检查</strong> (Checker) - 检查论文质量</li>
+                    <li><strong>并行审稿</strong> (Reviewer A & B) - 双盲审稿评估（参考审稿人特点）</li>
+                    <li><strong>决策</strong> (Decision) - 根据审稿意见决定：接受、小修或大修</li>
+                    <li><strong>大纲更新</strong> - 大修时可能更新大纲至 v2</li>
+                    <li><strong>翻译</strong> (Translator) - 生成中文版本</li>
+                    <li><strong>最终输出</strong> - 英文版、中文版、总结报告和大纲版本历史</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="features" class="diagram-section">
+            <h2>新功能说明</h2>
+
+            <div class="feature-highlight">
+                <h4>1. 审稿人特点输入</h4>
+                <p>支持为每个审稿人配置个性化特点，使审稿结果更符合真实场景。</p>
+                <p><strong>配置方式：</strong></p>
+                <ul>
+                    <li>在 <code>project_config.yaml</code> 的 <code>reviewer_profiles</code> 中配置</li>
+                    <li>在 <code>input/</code> 目录下创建 <code>reviewer_a_profile.txt</code> 和 <code>reviewer_b_profile.txt</code></li>
+                </ul>
+                <p><strong>内容示例：</strong>审稿风格、关注领域、历史意见等</p>
+            </div>
+
+            <div class="feature-highlight">
+                <h4>2. 大纲版本管理</h4>
+                <p>自动保存论文大纲的每个版本，记录修改原因和变更摘要。</p>
+                <p><strong>保存位置：</strong><code>outlines/</code> 目录</p>
+                <p><strong>版本触发：</strong></p>
+                <ul>
+                    <li>初始大纲生成时保存 v1</li>
+                    <li>审稿建议结构调整时更新为 v2</li>
+                    <li>每个版本包含：version、timestamp、change_reason、outline、changes_summary</li>
+                </ul>
+            </div>
+
+            <div class="feature-highlight">
+                <h4>3. 输出目录结构</h4>
+                <p>完整的项目输出包含以下目录：</p>
+                <pre>
+projects/项目名/
+├── input/              # 输入文件
+├── outlines/           # 大纲版本（新增）
+├── literature/         # 文献检索结果
+├── drafts/             # 中间草稿
+├── reviews/            # 审稿意见
+├── final/              # 最终输出
+└── state_snapshots/    # 状态快照
+                </pre>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                rankSpacing: 50,
+                nodeSpacing: 30
+            }
+        });
+    </script>
+</body>
+</html>

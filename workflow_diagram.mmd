@@ -1,0 +1,54 @@
+flowchart LR
+    START([🟢 START]) --> A[Analyst<br/>需求分析]
+    A --> B[Literature<br/>文献检索与验证]
+    A --> C[Outliner<br/>大纲生成]
+    B --> C
+    C --> C1[保存大纲 v1]
+    C1 --> D[Writer<br/>论文撰写]
+    D --> E[Checker<br/>质量检查]
+
+    E -->|Fail| D
+    E -->|Pass| F{Parallel<br/>Review}
+
+    F --> G[Reviewer A<br/>创新性/方法]
+    F --> H[Reviewer B<br/>结果/讨论]
+
+    G --> I{Decision<br/>决策}
+    H --> I
+
+    I -->|Accept| K[Translator<br/>中文翻译]
+    I -->|Minor Revise| K
+    I -->|Major Revise| D2[更新大纲 v2]
+    D2 --> D
+
+    K --> L([📄 Final Output])
+
+    L --> L1[英文版.docx]
+    L --> L2[中文版.docx]
+    L --> L3[总结报告.md]
+    L --> L4[大纲版本历史]
+
+    L1 --> END([🔴 END])
+    L2 --> END
+    L3 --> END
+    L4 --> END
+
+    style START fill:#4CAF50,stroke:#2E7D32,color:#fff
+    style END fill:#F44336,stroke:#B71C1C,color:#fff
+    style A fill:#2196F3,stroke:#0D47A1,color:#fff
+    style B fill:#2196F3,stroke:#0D47A1,color:#fff
+    style C fill:#2196F3,stroke:#0D47A1,color:#fff
+    style C1 fill:#90CAF9,stroke:#0D47A1,color:#fff
+    style D fill:#2196F3,stroke:#0D47A1,color:#fff
+    style D2 fill:#90CAF9,stroke:#0D47A1,color:#fff
+    style E fill:#2196F3,stroke:#0D47A1,color:#fff
+    style F fill:#00BCD4,stroke:#006064,color:#fff
+    style G fill:#00BCD4,stroke:#006064,color:#fff
+    style H fill:#00BCD4,stroke:#006064,color:#fff
+    style I fill:#FF9800,stroke:#E65100,color:#fff
+    style K fill:#2196F3,stroke:#0D47A1,color:#fff
+    style L fill:#F44336,stroke:#B71C1C,color:#fff
+    style L1 fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style L2 fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style L3 fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style L4 fill:#F8BBD0,stroke:#C62828,color:#000

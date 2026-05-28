@@ -1,0 +1,77 @@
+graph LR
+    subgraph Input["📥 输入层"]
+        A1["abstract.txt<br/>用户论文"]
+        A2["advisor_feedback.txt<br/>导师建议"]
+        A3["data/<br/>数据与分析脚本"]
+        A4["reviewer_a_profile.txt<br/>审稿人A特点"]
+        A5["reviewer_b_profile.txt<br/>审稿人B特点"]
+    end
+
+    subgraph Agents["🤖 智能体层"]
+        B1["Analyst<br/>需求分析师"]
+        B2["Literature<br/>文献检索与验证"]
+        B3["Outliner<br/>大纲生成"]
+        B4["Writer<br/>论文撰写"]
+        B5["Checker<br/>质量检查"]
+        B6["Reviewer A<br/>审稿人A"]
+        B7["Reviewer B<br/>审稿人B"]
+        B8["Decision<br/>决策节点"]
+        B9["Translator<br/>中文翻译"]
+    end
+
+    subgraph Output["📤 输出层"]
+        C1["drafts/<br/>草稿版本"]
+        C2["reviews/<br/>审稿意见"]
+        C3["final/<br/>终稿 DOCX"]
+        C4["state_snapshots/<br/>状态快照"]
+        C5["outlines/<br/>大纲版本"]
+        C6["修改总结报告<br/>Markdown"]
+    end
+
+    subgraph Config["⚙️ 配置层"]
+        D1["config.yaml<br/>全局配置"]
+        D2["project_config.yaml<br/>项目配置"]
+        D3[".env<br/>API 密钥"]
+    end
+
+    A1 --> B1
+    A2 --> B1
+    A3 --> B4
+    A4 --> B6
+    A5 --> B7
+
+    B1 --> B2
+    B1 --> B3
+    B2 --> B3
+    B3 --> B4
+    B4 --> B5
+
+    B5 -->|Pass| B6
+    B5 -->|Pass| B7
+    B5 -->|Fail| B4
+
+    B6 --> B8
+    B7 --> B8
+
+    B8 -->|Major Revise| B4
+    B8 -->|Accept / Minor| B9
+
+    B9 --> C3
+    B4 -.-> C1
+    B8 -.-> C2
+    B5 -.-> C4
+    B3 -.-> C5
+    B4 -.-> C5
+    B8 -.-> C6
+
+    style Input fill:#E3F2FD,stroke:#1565C0,color:#000
+    style Agents fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style Output fill:#FCE4EC,stroke:#C62828,color:#000
+    style Config fill:#F3E5F5,stroke:#6A1B9A,color:#000
+
+    style A4 fill:#BBDEFB,stroke:#1565C0,color:#000
+    style A5 fill:#BBDEFB,stroke:#1565C0,color:#000
+    style B6 fill:#FFF9C4,stroke:#F57F17,color:#000
+    style B7 fill:#FFF9C4,stroke:#F57F17,color:#000
+    style B8 fill:#FFE0B2,stroke:#E65100,color:#000
+    style C5 fill:#F8BBD0,stroke:#C62828,color:#000

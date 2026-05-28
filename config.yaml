@@ -1,0 +1,66 @@
+# ============================================================
+# 全局配置 - Paper Agent System
+# ============================================================
+
+# LLM 配置
+llm:
+  # 支持的模型: gpt-4o, gpt-4o-mini, claude-3-5-sonnet, etc.
+  model: "gpt-4o-mini"
+  # 环境变量名称，用于获取 API Key
+  api_key_env: "OPENAI_API_KEY"
+  # API base URL (留空则使用默认值)
+  api_base: ""
+  temperature: 0.7
+  max_tokens: 4096
+
+# PubMed API 配置
+pubmed:
+  # Entrez email (必需)
+  email: "your_email@example.com"
+  # API key (可选, 提高速率限制)
+  api_key: ""
+  # 每次检索最大返回数
+  max_results: 20
+
+# 工作流控制
+workflow:
+  # 内循环最大次数 (checker -> writer)
+  max_inner_loops: 1
+  # 外循环最大次数 (reviewer -> writer -> checker -> reviewer)
+  max_outer_loops: 2
+  # 审稿决策模式: "auto" 或 "manual"
+  decision_mode: "manual"
+
+# 自动决策规则 (仅 decision_mode: "auto" 时生效)
+auto_rules:
+  # 直接接受的条件: 两位审稿人都给出"接受"或"小修"
+  accept_conditions:
+    - "both_minor_or_accept"
+  # 需要大修的条件
+  revision_conditions:
+    - "any_major_revision"
+  # 拒绝的条件
+  reject_conditions:
+    - "any_reject"
+    - "max_loops_reached"
+
+# 质检配置
+checker:
+  # 标题相似度阈值 (0-1)，低于此值视为验证失败
+  title_similarity_threshold: 0.90
+  # 是否检查 AI 痕迹
+  check_ai_traces: true
+  # 是否检查语法
+  check_grammar: true
+
+# 数据同步
+sync:
+  # OneDrive 数据同步根目录
+  onedrive_data_root: "D:\\OneDrive\\ClaudeCode\\Paper_Agent_System_Data"
+  # 是否自动同步
+  auto_sync: true
+
+# 日志
+logging:
+  level: "INFO"
+  log_file: "system.log"

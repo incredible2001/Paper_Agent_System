@@ -1,0 +1,48 @@
+# ============================================================
+# 项目配置模板
+# ============================================================
+
+# 项目基本信息
+project_name: "template"
+description: ""
+
+# 输入文件
+input:
+  abstract_file: "input/abstract.txt"
+  draft_file: "input/draft.docx"  # 可选
+
+# 数据与分析
+data:
+  original_dir: "data/original"
+  # 是否启用数据自动重分析
+  auto_reanalyze: false
+  # 触发重分析的条件 (可扩展)
+  reanalyze_triggers: []
+  # R 脚本入口
+  r_script: "data/original/analysis.R"
+
+# 文献
+literature:
+  db_file: "literature/literature.db"
+  # 是否从已有数据库加载
+  load_existing: true
+
+# 输出
+output:
+  drafts_dir: "drafts"
+  reviews_dir: "reviews"
+  final_dir: "final"
+  state_dir: "state_snapshots"
+
+# 审稿人特点 (可选，供 reviewer 参考)
+# 用户可粘贴现有审稿情况、审稿人风格特点等
+reviewer_profiles:
+  reviewer_a: ""  # 审稿人A的特点或历史审稿意见
+  reviewer_b: ""  # 审稿人B的特点或历史审稿意见
+
+# 论文偏好 (可选，供 writer 参考)
+paper_preferences:
+  target_journal: ""
+  word_limit: 0  # 0 表示不限
+  language: "en"  # en / zh
+  style: "academic"
