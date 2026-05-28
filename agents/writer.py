@@ -203,7 +203,7 @@ def _build_initial_prompt(
 
 以下是目标期刊已发表的类似论文，请参考其写作风格、结构和表达方式：
 
-{reference_paper[:4000]}
+{reference_paper[:30000]}
 """
 
     prompt = f"""你是一位学术论文撰写师。请根据以下信息撰写论文初稿。
