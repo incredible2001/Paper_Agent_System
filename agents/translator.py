@@ -63,7 +63,17 @@ def _build_translation_prompt(draft_content: dict) -> str:
 
     # 参考文献
     refs = draft_content.get("references", [])
-    refs_text = "\n".join(refs) if refs else ""
+    # 处理 refs 可能是 dict 列表的情况
+    refs_str = []
+    for ref in refs:
+        if isinstance(ref, str):
+            refs_str.append(ref)
+        elif isinstance(ref, dict):
+            # 如果是 dict，尝试提取文本
+            refs_str.append(ref.get("text", ref.get("reference", str(ref))))
+        else:
+            refs_str.append(str(ref))
+    refs_text = "\n".join(refs_str) if refs_str else ""
 
     prompt = f"""你是一位学术论文翻译专家。请将以下英文学术论文翻译为中文。
 
