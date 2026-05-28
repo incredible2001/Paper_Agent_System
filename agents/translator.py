@@ -23,6 +23,7 @@ def translator_node(state: GraphState) -> dict:
 
     draft_content = state.get("draft_content", {})
     global_config = state.get("global_config", {})
+    project_config = state.get("project_config", {})
 
     if not draft_content:
         logger.warning("No draft content to translate")
@@ -30,8 +31,7 @@ def translator_node(state: GraphState) -> dict:
 
     prompt = _build_translation_prompt(draft_content)
 
-    llm_config = global_config.get("llm", {})
-    response = _call_llm(prompt, llm_config)
+    response = _call_llm(prompt, global_config, project_config)
 
     draft_zh = _parse_translation(response)
 
@@ -115,15 +115,16 @@ def _build_translation_prompt(draft_content: dict) -> str:
     return prompt
 
 
-def _call_llm(prompt: str, llm_config: dict) -> str:
+def _call_llm(prompt: str, global_config: dict, project_config: dict) -> str:
     """调用 LLM API。"""
     from utils.llm_caller import call_llm
 
     return call_llm(
         prompt=prompt,
         system_prompt="你是一位学术论文翻译专家。请将英文学术论文准确翻译为中文，保持学术规范。",
-        temperature=llm_config.get("temperature", 0.3),  # 翻译用低温度
-        max_tokens=16384,
+        agent_name="translator",
+        global_config=global_config,
+        project_config=project_config,
     )
 
 

@@ -33,8 +33,7 @@ def outliner_node(state: GraphState) -> dict:
     prompt = _build_outliner_prompt(requirement, literature_list, project_config, user_input)
 
     # 调用 LLM
-    llm_config = global_config.get("llm", {})
-    response = _call_llm(prompt, llm_config)
+    response = _call_llm(prompt, global_config, project_config)
 
     # 解析大纲
     outline = _parse_outline(response)
@@ -158,15 +157,16 @@ def _build_outliner_prompt(
     return prompt
 
 
-def _call_llm(prompt: str, llm_config: dict) -> str:
+def _call_llm(prompt: str, global_config: dict, project_config: dict) -> str:
     """调用 LLM API。"""
     from utils.llm_caller import call_llm
 
     return call_llm(
         prompt=prompt,
         system_prompt="你是一位学术论文大纲起草师。请生成结构化的论文大纲 JSON。",
-        temperature=llm_config.get("temperature", 0.7),
-        max_tokens=llm_config.get("max_tokens", 4096),
+        agent_name="outliner",
+        global_config=global_config,
+        project_config=project_config,
     )
 
 

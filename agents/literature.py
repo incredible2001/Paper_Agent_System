@@ -22,6 +22,7 @@ def literature_node(state: GraphState) -> dict:
 
     requirement = state.get("requirement", {})
     global_config = state.get("global_config", {})
+    project_config = state.get("project_config", {})
 
     pubmed_config = global_config.get("pubmed", {})
     email = pubmed_config.get("email", "")

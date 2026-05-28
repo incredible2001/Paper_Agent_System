@@ -2,16 +2,41 @@
 # 全局配置 - Paper Agent System
 # ============================================================
 
-# LLM 配置
+# LLM 配置 - 多模型支持
 llm:
-  # 支持的模型: gpt-4o, gpt-4o-mini, claude-3-5-sonnet, etc.
-  model: "gpt-4o-mini"
-  # 环境变量名称，用于获取 API Key
-  api_key_env: "OPENAI_API_KEY"
-  # API base URL (留空则使用默认值)
-  api_base: ""
-  temperature: 0.7
-  max_tokens: 4096
+  # 全局默认模型（当 agent 未指定时使用）
+  default_model:
+    provider: "mimo"          # 提供商: mimo, openai, anthropic
+    model: "mimo-v2.5-pro"    # 模型名称
+    temperature: 0.7
+    max_tokens: 4096
+
+  # 提供商配置
+  providers:
+    mimo:
+      api_key_env: "MIMO_API_KEY"
+      base_url_env: "MIMO_BASE_URL"
+    openai:
+      api_key_env: "OPENAI_API_KEY"
+      base_url: ""  # 留空使用默认
+    anthropic:
+      api_key_env: "ANTHROPIC_API_KEY"
+      base_url: ""
+
+  # Agent 专属模型配置（可选，覆盖默认配置）
+  # 留空则使用 default_model
+  agents: {}
+  # 示例:
+  # agents:
+  #   analyst:
+  #     provider: "openai"
+  #     model: "gpt-4o"
+  #   literature:
+  #     provider: "anthropic"
+  #     model: "claude-3-5-sonnet"
+  #   writer:
+  #     provider: "mimo"
+  #     model: "mimo-v2.5-pro"
 
 # PubMed API 配置
 pubmed:

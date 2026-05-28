@@ -50,8 +50,8 @@ def checker_node(state: GraphState) -> dict:
     issues.extend(structural_issues)
 
     # 3. LLM 质检 (语法、AI痕迹、逻辑)
-    llm_config = global_config.get("llm", {})
-    llm_issues = _llm_quality_check(draft_content, llm_config)
+    project_config = state.get("project_config", {})
+    llm_issues = _llm_quality_check(draft_content, global_config, project_config)
     issues.extend(llm_issues)
 
     # 生成报告
@@ -258,7 +258,7 @@ def _check_structure(draft_content: dict) -> list[dict]:
     return issues
 
 
-def _llm_quality_check(draft_content: dict, llm_config: dict) -> list[dict]:
+def _llm_quality_check(draft_content: dict, global_config: dict, project_config: dict) -> list[dict]:
     """使用 LLM 进行语法、AI痕迹和逻辑检查。"""
     from utils.llm_caller import call_llm_json
 
@@ -314,7 +314,9 @@ def _llm_quality_check(draft_content: dict, llm_config: dict) -> list[dict]:
         result = call_llm_json(
             prompt=prompt,
             system_prompt="你是一位学术论文质检专家。请仔细检查论文质量，以 JSON 格式输出问题列表。",
-            temperature=llm_config.get("temperature", 0.3),
+            agent_name="checker",
+            global_config=global_config,
+            project_config=project_config,
         )
         if isinstance(result, dict) and "issues" in result:
             return result["issues"]

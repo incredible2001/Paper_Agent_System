@@ -63,8 +63,7 @@ def writer_node(state: GraphState) -> dict:
         )
 
     # 调用 LLM
-    llm_config = global_config.get("llm", {})
-    response = _call_llm(prompt, llm_config)
+    response = _call_llm(prompt, global_config, project_config)
 
     # 解析正文内容
     new_draft = _parse_draft(response)
@@ -352,15 +351,16 @@ def _build_revision_prompt(
     return prompt
 
 
-def _call_llm(prompt: str, llm_config: dict) -> str:
+def _call_llm(prompt: str, global_config: dict, project_config: dict) -> str:
     """调用 LLM API。"""
     from utils.llm_caller import call_llm
 
     return call_llm(
         prompt=prompt,
         system_prompt="你是一位学术论文撰写师。请撰写高质量的学术论文，以 JSON 格式输出。",
-        temperature=llm_config.get("temperature", 0.7),
-        max_tokens=16384,  # 论文需要更多 token
+        agent_name="writer",
+        global_config=global_config,
+        project_config=project_config,
     )
 
 

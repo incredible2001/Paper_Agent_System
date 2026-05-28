@@ -25,12 +25,12 @@ def reviewer_b_node(state: GraphState) -> dict:
     literature_list = state.get("literature_list", [])
     requirement = state.get("requirement", {})
     global_config = state.get("global_config", {})
+    project_config = state.get("project_config", {})
     user_input = state.get("user_input", {})
 
     prompt = _build_review_prompt(draft_content, requirement, user_input)
 
-    llm_config = global_config.get("llm", {})
-    response = _call_llm(prompt, llm_config)
+    response = _call_llm(prompt, global_config, project_config)
 
     review = _parse_review(response)
 
@@ -127,15 +127,16 @@ def _build_review_prompt(draft_content: dict, requirement: dict, user_input: dic
     return prompt
 
 
-def _call_llm(prompt: str, llm_config: dict) -> str:
+def _call_llm(prompt: str, global_config: dict, project_config: dict) -> str:
     """调用 LLM API。"""
     from utils.llm_caller import call_llm
 
     return call_llm(
         prompt=prompt,
         system_prompt="你是一位资深学术审稿人 (Reviewer B)，专注于结果解读、讨论深度和学术贡献的评审。请严格审稿，以 JSON 格式输出。",
-        temperature=llm_config.get("temperature", 0.5),
-        max_tokens=llm_config.get("max_tokens", 4096),
+        agent_name="reviewer_b",
+        global_config=global_config,
+        project_config=project_config,
     )
 
 

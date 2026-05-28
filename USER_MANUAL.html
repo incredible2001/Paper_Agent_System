@@ -476,6 +476,7 @@ graph LR
         A3["data/<br/>数据与分析脚本"]
         A4["reviewer_a_profile.txt<br/>审稿人A特点"]
         A5["reviewer_b_profile.txt<br/>审稿人B特点"]
+        A6["llm_config.yaml<br/>LLM模型配置"]
     end
 
     subgraph Agents["🤖 智能体层"]
@@ -821,30 +822,42 @@ References:
             <h2>6. 配置详解</h2>
 
             <h3>6.1 全局配置 (config.yaml)</h3>
-            <pre><code># LLM 配置
+            <pre><code># LLM 配置 - 多模型支持
 llm:
-  model: "gpt-4o-mini"           # 模型选择
-  api_key_env: "OPENAI_API_KEY"  # 环境变量名
-  temperature: 0.7               # 温度参数
-  max_tokens: 4096               # 最大token数
+  # 全局默认模型
+  default_model:
+    provider: "mimo"          # 提供商: mimo, openai, anthropic
+    model: "mimo-v2.5-pro"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # 提供商配置
+  providers:
+    mimo:
+      api_key_env: "MIMO_API_KEY"
+      base_url_env: "MIMO_BASE_URL"
+    openai:
+      api_key_env: "OPENAI_API_KEY"
+    anthropic:
+      api_key_env: "ANTHROPIC_API_KEY"
+
+  # Agent 专属模型配置（可选）
+  agents:
+    writer:
+      provider: "openai"
+      model: "gpt-4o"
+    # ... 其他 agent
 
 # PubMed 配置
 pubmed:
-  email: "your@email.com"        # 必需
-  api_key: ""                    # 可选
-  max_results: 20                # 每次检索最大返回数
+  email: "your@email.com"
+  max_results: 20
 
 # 工作流控制
 workflow:
-  max_inner_loops: 1             # 质检->撰写 最大循环次数
-  max_outer_loops: 2             # 审稿->撰写 最大循环次数
-  decision_mode: "manual"        # auto 或 manual
-
-# 质检配置
-checker:
-  title_similarity_threshold: 0.90
-  check_ai_traces: true
-  check_grammar: true</code></pre>
+  max_inner_loops: 1
+  max_outer_loops: 2
+  decision_mode: "manual"</code></pre>
 
             <h3>6.2 项目配置 (project_config.yaml)</h3>
             <pre><code>project_name: "my_paper"
@@ -852,7 +865,7 @@ description: "项目描述"
 
 input:
   abstract_file: "input/abstract.txt"
-  draft_file: "input/draft.docx"
+  llm_config_file: "input/llm_config.yaml"  # LLM配置文件
 
 # 审稿人特点
 reviewer_profiles:
@@ -863,9 +876,83 @@ paper_preferences:
   target_journal: "PLOS ONE"
   word_limit: 4000
   language: "en"
-  style: "academic"</code></pre>
 
-            <h3>6.3 配置优先级</h3>
+# LLM 配置（项目级）
+llm_config:
+  use_global_llm: true  # true使用全局配置，false使用下面的配置
+  agents:
+    writer:
+      provider: "openai"
+      model: "gpt-4o"
+      max_tokens: 16384</code></pre>
+
+            <h3>6.3 LLM 配置文件 (input/llm_config.yaml)</h3>
+            <p>这是最灵活的配置方式，可以在 <code>input/</code> 目录下创建此文件来为每个 Agent 指定不同的模型。</p>
+
+            <div class="tip">
+                <p><strong>快速配置：</strong>只需修改 <code>defaults</code> 部分即可为所有 Agent 设置同一模型。</p>
+            </div>
+
+            <pre><code># 全局默认设置
+defaults:
+  provider: "mimo"
+  model: "mimo-v2.5-pro"
+  temperature: 0.7
+  max_tokens: 4096
+
+# 是否使用全局默认设置
+# true: 所有 agent 使用 defaults（除非单独指定）
+# false: 使用各 agent 的独立配置
+use_defaults: true
+
+# Agent 专属配置（可选）
+agents:
+  writer:
+    max_tokens: 16384  # 写作需要更多 token
+  translator:
+    max_tokens: 16384  # 翻译需要更多 token</code></pre>
+
+            <h3>6.4 混合使用不同厂商模型</h3>
+            <pre><code># 使用不同厂商的模型
+use_defaults: false
+
+agents:
+  # 写作用 OpenAI GPT-4o
+  writer:
+    provider: "openai"
+    model: "gpt-4o"
+    temperature: 0.8
+    max_tokens: 16384
+
+  # 审稿用 Anthropic Claude
+  reviewer_a:
+    provider: "anthropic"
+    model: "claude-3-5-sonnet"
+    temperature: 0.5
+
+  reviewer_b:
+    provider: "anthropic"
+    model: "claude-3-5-sonnet"
+    temperature: 0.5
+
+  # 其他用 MiMo
+  analyst:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  literature:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  outliner:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  checker:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  translator:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"</code></pre>
+
+            <h3>6.5 配置优先级</h3>
             <table>
                 <thead>
                     <tr>
@@ -876,7 +963,7 @@ paper_preferences:
                 <tbody>
                     <tr>
                         <td>LLM 模型</td>
-                        <td>CLI参数 > 项目配置 > 全局配置 > 默认值</td>
+                        <td><code>input/llm_config.yaml</code> > <code>project_config.yaml</code> > <code>config.yaml</code></td>
                     </tr>
                     <tr>
                         <td>运行模式</td>
@@ -885,6 +972,34 @@ paper_preferences:
                     <tr>
                         <td>审稿人特点</td>
                         <td>输入文件 > 项目配置 > 空</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>6.6 支持的提供商</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>提供商</th>
+                        <th>环境变量</th>
+                        <th>示例模型</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>mimo</code></td>
+                        <td>MIMO_API_KEY, MIMO_BASE_URL</td>
+                        <td>mimo-v2.5-pro, mimo-v2.5-lite</td>
+                    </tr>
+                    <tr>
+                        <td><code>openai</code></td>
+                        <td>OPENAI_API_KEY</td>
+                        <td>gpt-4o, gpt-4o-mini, gpt-4-turbo</td>
+                    </tr>
+                    <tr>
+                        <td><code>anthropic</code></td>
+                        <td>ANTHROPIC_API_KEY</td>
+                        <td>claude-3-5-sonnet, claude-3-opus, claude-3-haiku</td>
                     </tr>
                 </tbody>
             </table>

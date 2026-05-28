@@ -1,0 +1,123 @@
+# ============================================================
+# LLM 模型配置文件
+# ============================================================
+#
+# 在此文件中为每个 Agent 指定使用的 LLM 模型
+# 优先级: 此文件 > project_config.yaml > config.yaml
+#
+# 支持的提供商 (provider):
+#   - mimo:      MiMo API (默认)
+#   - openai:    OpenAI API
+#   - anthropic: Anthropic API
+#
+# 支持的模型示例:
+#   mimo:      mimo-v2.5-pro, mimo-v2.5-lite
+#   openai:    gpt-4o, gpt-4o-mini, gpt-4-turbo
+#   anthropic: claude-3-5-sonnet, claude-3-opus, claude-3-haiku
+#
+# ============================================================
+
+# 全局默认设置（可被单个 agent 配置覆盖）
+defaults:
+  provider: "mimo"
+  model: "mimo-v2.5-pro"
+  temperature: 0.7
+  max_tokens: 4096
+
+# 是否使用全局默认设置
+# 设为 true 时，所有 agent 使用上面的 defaults 配置
+# 设为 false 时，使用下面各 agent 的独立配置
+use_defaults: true
+
+# Agent 专属配置（当 use_defaults: false 时生效）
+# 可以只配置需要特殊处理的 agent，未配置的将使用 defaults
+agents:
+  # 需求分析师 - 分析用户输入，提取结构化需求
+  analyst:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # 文献工程师 - PubMed 检索和文献筛选
+  literature:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # 大纲起草师 - 生成论文大纲
+  outliner:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # 正文撰写师 - 撰写/修改论文（需要更多 token）
+  writer:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.7
+    max_tokens: 16384
+
+  # 质检审查师 - 质量检查
+  checker:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.5
+    max_tokens: 4096
+
+  # 审稿人A - 侧重创新性和方法论
+  reviewer_a:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.5
+    max_tokens: 4096
+
+  # 审稿人B - 侧重结果解读和讨论
+  reviewer_b:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.5
+    max_tokens: 4096
+
+  # 翻译师 - 中文翻译（需要更多 token）
+  translator:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+    temperature: 0.7
+    max_tokens: 16384
+
+# ============================================================
+# 高级配置示例
+# ============================================================
+#
+# 示例1: 全部使用 OpenAI
+# defaults:
+#   provider: "openai"
+#   model: "gpt-4o-mini"
+# use_defaults: true
+#
+# 示例2: 写作用 GPT-4o，其他用 Claude
+# use_defaults: false
+# agents:
+#   writer:
+#     provider: "openai"
+#     model: "gpt-4o"
+#   analyst:
+#     provider: "anthropic"
+#     model: "claude-3-5-sonnet"
+#   literature:
+#     provider: "anthropic"
+#     model: "claude-3-5-sonnet"
+#
+# 示例3: 只修改 writer，其他用默认
+# use_defaults: true
+# agents:
+#   writer:
+#     provider: "openai"
+#     model: "gpt-4o"
+#     temperature: 0.8
+#     max_tokens: 16384
+#
+# ============================================================

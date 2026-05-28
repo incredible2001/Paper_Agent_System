@@ -10,6 +10,7 @@ description: ""
 input:
   abstract_file: "input/abstract.txt"
   draft_file: "input/draft.docx"  # 可选
+  llm_config_file: "input/llm_config.yaml"  # LLM 模型配置文件（可选）
 
 # 数据与分析
 data:
@@ -46,3 +47,56 @@ paper_preferences:
   word_limit: 0  # 0 表示不限
   language: "en"  # en / zh
   style: "academic"
+
+# ============================================================
+# LLM 模型配置（项目级）
+# ============================================================
+# 优先级: 项目级配置 > 全局 config.yaml 配置
+# 如果 use_global_llm: true，则使用全局配置
+# 如果 use_global_llm: false，则使用下面的 agents 配置
+llm_config:
+  use_global_llm: true  # 是否使用全局 LLM 配置
+
+  # Agent 专属模型配置（当 use_global_llm: false 时生效）
+  # 可以为每个 agent 指定不同的 provider 和 model
+  agents:
+    analyst:
+      provider: "mimo"          # 提供商: mimo, openai, anthropic
+      model: "mimo-v2.5-pro"    # 模型名称
+      temperature: 0.7
+      max_tokens: 4096
+    literature:
+      provider: "mimo"
+      model: "mimo-v2.5-pro"
+      temperature: 0.7
+      max_tokens: 4096
+    outliner:
+      provider: "mimo"
+      model: "mimo-v2.5-pro"
+      temperature: 0.7
+      max_tokens: 4096
+    writer:
+      provider: "mimo"
+      model: "mimo-v2.5-pro"
+      temperature: 0.7
+      max_tokens: 16384  # 写作需要更多 token
+    checker:
+      provider: "mimo"
+      model: "mimo-v2.5-pro"
+      temperature: 0.5
+      max_tokens: 4096
+    reviewer_a:
+      provider: "mimo"
+      model: "mimo-v2.5-pro"
+      temperature: 0.5
+      max_tokens: 4096
+    reviewer_b:
+      provider: "mimo"
+      model: "mimo-v2.5-pro"
+      temperature: 0.5
+      max_tokens: 4096
+    translator:
+      provider: "mimo"
+      model: "mimo-v2.5-pro"
+      temperature: 0.7
+      max_tokens: 16384  # 翻译需要更多 token

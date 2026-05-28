@@ -23,13 +23,13 @@ def analyst_node(state: GraphState) -> dict:
 
     user_input = state.get("user_input", {})
     global_config = state.get("global_config", {})
+    project_config = state.get("project_config", {})
 
     # 构建 prompt
     prompt = _build_analyst_prompt(user_input)
 
     # 调用 LLM
-    llm_config = global_config.get("llm", {})
-    response = _call_llm(prompt, llm_config)
+    response = _call_llm(prompt, global_config, project_config)
 
     # 解析结构化需求
     requirement = _parse_requirement(response)
@@ -89,15 +89,16 @@ def _build_analyst_prompt(user_input: dict) -> str:
     return prompt
 
 
-def _call_llm(prompt: str, llm_config: dict) -> str:
+def _call_llm(prompt: str, global_config: dict, project_config: dict) -> str:
     """调用 LLM API。"""
     from utils.llm_caller import call_llm
 
     return call_llm(
         prompt=prompt,
         system_prompt="你是一位学术论文需求分析师。请分析用户输入并输出结构化 JSON 需求。",
-        temperature=llm_config.get("temperature", 0.7),
-        max_tokens=llm_config.get("max_tokens", 4096),
+        agent_name="analyst",
+        global_config=global_config,
+        project_config=project_config,
     )
 
 

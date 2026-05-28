@@ -540,6 +540,12 @@ def run_workflow(
     # 读取用户输入
     user_input = _load_user_input(project_path, project_config)
 
+    # 加载 LLM 配置（从 input/llm_config.yaml 或 project_config.yaml）
+    llm_config = _load_llm_config(project_path, project_config)
+    if llm_config:
+        project_config["llm_config"] = llm_config
+        logger.info(f"LLM config loaded: use_global={llm_config.get('use_global_llm', True)}")
+
     # 构建图
     graph = build_graph(global_config)
     app = graph.compile()
@@ -687,6 +693,70 @@ def _load_user_input(project_path: str, project_config: dict) -> dict:
             user_input["reviewer_b_profile"] = f.read().strip()
 
     return user_input
+
+
+def _load_llm_config(project_path: str, project_config: dict) -> dict:
+    """
+    加载 LLM 配置文件。
+
+    优先级（从高到低）:
+    1. input/llm_config.yaml (用户自定义)
+    2. project_config.yaml 中的 llm_config
+    3. config.yaml (全局配置)
+
+    Args:
+        project_path: 项目路径
+        project_config: 项目配置
+
+    Returns:
+        dict: 合并后的 LLM 配置
+    """
+    import yaml
+
+    # 1. 从 project_config.yaml 获取基础配置
+    llm_config = project_config.get("llm_config", {})
+
+    # 2. 检查 input/llm_config.yaml（最高优先级）
+    llm_config_file = project_config.get("input", {}).get("llm_config_file", "input/llm_config.yaml")
+    llm_config_path = os.path.join(project_path, llm_config_file)
+
+    if os.path.exists(llm_config_path):
+        try:
+            with open(llm_config_path, "r", encoding="utf-8") as f:
+                user_llm_config = yaml.safe_load(f) or {}
+
+            logger.info(f"Loaded LLM config from {llm_config_path}")
+
+            # 如果 use_defaults 为 true，使用 defaults 配置
+            if user_llm_config.get("use_defaults", True):
+                defaults = user_llm_config.get("defaults", {})
+                # 将 defaults 应用到所有 agent
+                agents_config = {}
+                for agent_name in ["analyst", "literature", "outliner", "writer",
+                                   "checker", "reviewer_a", "reviewer_b", "translator"]:
+                    agents_config[agent_name] = {
+                        "provider": defaults.get("provider", "mimo"),
+                        "model": defaults.get("model", "mimo-v2.5-pro"),
+                        "temperature": defaults.get("temperature", 0.7),
+                        "max_tokens": defaults.get("max_tokens", 4096),
+                    }
+                # 合并用户自定义的 agent 配置
+                user_agents = user_llm_config.get("agents", {})
+                for agent_name, agent_cfg in user_agents.items():
+                    if agent_name in agents_config:
+                        agents_config[agent_name].update(agent_cfg)
+
+                llm_config["use_global_llm"] = False
+                llm_config["agents"] = agents_config
+            else:
+                # use_defaults 为 false，使用 agents 配置
+                llm_config["use_global_llm"] = False
+                llm_config["agents"] = user_llm_config.get("agents", {})
+
+        except Exception as e:
+            logger.warning(f"Failed to load LLM config from {llm_config_path}: {e}")
+
+    return llm_config
 
 
 # ============================================================
