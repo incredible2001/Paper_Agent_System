@@ -1264,6 +1264,36 @@ agents:
 
             <h3>8.6 state_snapshots/ - 状态快照</h3>
             <p>每个节点完成后都会保存状态快照，用于调试和回溯。</p>
+
+            <h3>8.7 OneDrive 自动同步</h3>
+            <p>系统支持将最终输出文件自动同步到 OneDrive 目录，便于备份和跨设备访问。</p>
+
+            <h4>配置方法</h4>
+            <p>在 <code>config.yaml</code> 中配置：</p>
+            <pre><code>sync:
+  # OneDrive 数据同步根目录
+  onedrive_data_root: "D:\\OneDrive\\ClaudeCode\\Paper_Agent_System_Data"
+  # 是否自动同步
+  auto_sync: true</code></pre>
+
+            <h4>同步的文件</h4>
+            <ul>
+                <li><code>final/*.docx</code> - 英文终稿和中文终稿</li>
+                <li><code>final/修改总结报告*.md</code> - 修改总结报告</li>
+            </ul>
+
+            <h4>同步目录结构</h4>
+            <pre><code>D:\OneDrive\ClaudeCode\Paper_Agent_System_Data\
+└── projects/
+    └── 项目名/
+        └── final_paper/
+            ├── *_final.docx
+            ├── *_final_zh.docx
+            └── 修改总结报告_*.md</code></pre>
+
+            <div class="tip">
+                <p>OneDrive 同步功能需要 OneDrive 客户端正在运行。如果不需要同步，将 <code>auto_sync</code> 设为 <code>false</code> 即可。</p>
+            </div>
         </section>
 
         <!-- 9. 审稿人特点配置 -->

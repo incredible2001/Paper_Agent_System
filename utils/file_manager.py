@@ -305,16 +305,18 @@ def save_outline(
     version: int,
     change_reason: str = "",
     previous_outline: dict = None,
+    outline_zh: dict = None,
 ) -> str:
     """
     保存论文大纲到 outlines/ 目录，支持版本管理和修改记录。
 
     Args:
         project_name: 项目名称
-        outline: 大纲数据
+        outline: 大纲数据 (英文)
         version: 大纲版本号
         change_reason: 修改原因 (如果是修改版)
         previous_outline: 上一版大纲 (用于生成 diff)
+        outline_zh: 中文翻译大纲 (可选)
 
     Returns:
         str: 保存的文件路径
@@ -331,6 +333,10 @@ def save_outline(
         "outline": _serialize_for_json(outline),
     }
 
+    # 如果有中文翻译，添加到数据中
+    if outline_zh:
+        outline_data["outline_zh"] = _serialize_for_json(outline_zh)
+
     # 如果有上一版大纲，生成变更摘要
     if previous_outline and change_reason:
         outline_data["changes_summary"] = _generate_outline_diff(previous_outline, outline)
@@ -339,6 +345,21 @@ def save_outline(
         json.dump(outline_data, f, ensure_ascii=False, indent=2)
 
     logger.info(f"大纲已保存: outlines/{filename}")
+
+    # 同时保存单独的中文版本文件（便于阅读）
+    if outline_zh:
+        filename_zh = f"outline_v{version}_zh.json"
+        filepath_zh = os.path.join(outlines_dir, filename_zh)
+        outline_data_zh = {
+            "version": version,
+            "timestamp": datetime.now().isoformat(),
+            "change_reason": change_reason,
+            "outline": _serialize_for_json(outline_zh),
+        }
+        with open(filepath_zh, "w", encoding="utf-8") as f:
+            json.dump(outline_data_zh, f, ensure_ascii=False, indent=2)
+        logger.info(f"中文大纲已保存: outlines/{filename_zh}")
+
     return filepath
 
 

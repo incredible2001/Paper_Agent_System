@@ -12,8 +12,43 @@ from docx import Document
 from docx.shared import Pt, Inches, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.style import WD_STYLE_TYPE
+from docx.oxml.ns import qn
 
 logger = logging.getLogger(__name__)
+
+
+def _set_run_font(run, font_name_en="Times New Roman", font_name_cn="宋体", size=None, bold=None):
+    """
+    统一设置 run 的字体（中英文分别设置）。
+
+    Args:
+        run: docx 的 run 对象
+        font_name_en: 英文字体
+        font_name_zh: 中文字体
+        size: 字体大小
+        bold: 是否加粗
+    """
+    run.font.name = font_name_en
+    # 设置中文字体
+    run._element.rPr.rFonts.set(qn('w:eastAsia'), font_name_cn)
+    if size:
+        run.font.size = size
+    if bold is not None:
+        run.bold = bold
+
+
+def _set_paragraph_font(paragraph, font_name_en="Times New Roman", font_name_cn="宋体", size=Pt(12)):
+    """
+    统一设置段落的字体。
+
+    Args:
+        paragraph: docx 的段落对象
+        font_name_en: 英文字体
+        font_name_zh: 中文字体
+        size: 字体大小
+    """
+    for run in paragraph.runs:
+        _set_run_font(run, font_name_en, font_name_cn, size)
 
 
 def assemble_docx(
@@ -60,8 +95,7 @@ def assemble_docx(
     title_para = doc.add_paragraph()
     title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
     title_run = title_para.add_run(paper.get("title", "Untitled"))
-    title_run.bold = True
-    title_run.font.size = Pt(16)
+    _set_run_font(title_run, size=Pt(16), bold=True)
 
     # 空行
     doc.add_paragraph()
@@ -70,18 +104,19 @@ def assemble_docx(
     if paper.get("abstract"):
         abstract_heading = doc.add_paragraph()
         abstract_run = abstract_heading.add_run("Abstract")
-        abstract_run.bold = True
-        abstract_run.font.size = Pt(12)
+        _set_run_font(abstract_run, size=Pt(12), bold=True)
 
         abstract_para = doc.add_paragraph(paper["abstract"])
         abstract_para.paragraph_format.first_line_indent = Inches(0.5)
+        _set_paragraph_font(abstract_para)
 
     # 关键词
     if paper.get("keywords"):
         kw_para = doc.add_paragraph()
         kw_run = kw_para.add_run("Keywords: ")
-        kw_run.bold = True
-        kw_para.add_run(", ".join(paper["keywords"]))
+        _set_run_font(kw_run, size=Pt(12), bold=True)
+        kw_content = kw_para.add_run(", ".join(paper["keywords"]))
+        _set_run_font(kw_content, size=Pt(12))
 
     doc.add_paragraph()  # 空行
 
@@ -97,6 +132,7 @@ def assemble_docx(
             if isinstance(section, str) and section.strip():
                 p = doc.add_paragraph(section)
                 p.paragraph_format.first_line_indent = Inches(0.5)
+                _set_paragraph_font(p)
             continue
         heading = section.get("heading", "")
         level = section.get("level", 1)
@@ -110,6 +146,10 @@ def assemble_docx(
         else:
             h = doc.add_heading(heading, level=3)
 
+        # 设置标题字体
+        for run in h.runs:
+            _set_run_font(run, size=run.font.size, bold=True)
+
         # 添加正文内容
         if content:
             # 按段落分割
@@ -120,16 +160,20 @@ def assemble_docx(
                     p = doc.add_paragraph(para_text)
                     p.paragraph_format.first_line_indent = Inches(0.5)
                     p.paragraph_format.space_after = Pt(6)
+                    _set_paragraph_font(p)
 
     # 参考文献
     if paper.get("references"):
         doc.add_paragraph()
-        doc.add_heading("References", level=1)
+        ref_heading = doc.add_heading("References", level=1)
+        for run in ref_heading.runs:
+            _set_run_font(run, size=run.font.size, bold=True)
         for i, ref in enumerate(paper["references"], 1):
             ref_para = doc.add_paragraph()
             ref_para.paragraph_format.left_indent = Inches(0.5)
             ref_para.paragraph_format.first_line_indent = Inches(-0.5)
-            ref_para.add_run(f"[{i}] {ref}")
+            ref_run = ref_para.add_run(f"[{i}] {ref}")
+            _set_run_font(ref_run, size=Pt(10))
             ref_para.paragraph_format.space_after = Pt(3)
 
     # 保存
@@ -142,11 +186,14 @@ def assemble_docx(
 
 
 def _setup_default_styles(doc: Document) -> None:
-    """设置默认的文档样式。"""
+    """设置默认的文档样式（中文宋体，英文 Times New Roman）。"""
     style = doc.styles["Normal"]
     font = style.font
     font.name = "Times New Roman"
     font.size = Pt(12)
+
+    # 设置中文字体
+    style.element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
 
     # 设置行间距
     pf = style.paragraph_format

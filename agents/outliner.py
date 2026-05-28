@@ -38,10 +38,13 @@ def outliner_node(state: GraphState) -> dict:
     # 解析大纲
     outline = _parse_outline(response)
 
+    # 生成中文翻译版本
+    outline_zh = _translate_outline(outline, global_config, project_config)
+
     # 更新大纲版本
     new_outline_version = outline_version + 1
 
-    # 保存大纲到文件
+    # 保存大纲到文件（同时保存英文和中文版本）
     from utils.file_manager import save_outline
     project_name = state.get("project_name", "unknown")
     save_outline(
@@ -49,6 +52,7 @@ def outliner_node(state: GraphState) -> dict:
         outline=outline,
         version=new_outline_version,
         change_reason="初始大纲生成",
+        outline_zh=outline_zh,
     )
 
     # 记录到历史
@@ -62,6 +66,7 @@ def outliner_node(state: GraphState) -> dict:
 
     return {
         "outline": outline,
+        "outline_zh": outline_zh,
         "outline_version": new_outline_version,
         "outline_history": outline_history,
         "messages": [{"role": "outliner", "content": f"大纲 v{new_outline_version} 生成完成，共 {len(outline.get('sections', []))} 个章节"}],
@@ -190,3 +195,68 @@ def _parse_outline(response: str) -> dict:
             "parse_error": True,
             "raw_response": response,
         }
+
+
+def _translate_outline(outline: dict, global_config: dict, project_config: dict) -> dict:
+    """
+    将大纲翻译为中文。
+
+    Args:
+        outline: 英文大纲
+        global_config: 全局配置
+        project_config: 项目配置
+
+    Returns:
+        dict: 中文大纲
+    """
+    import json
+
+    # 构建翻译 prompt
+    outline_json = json.dumps(outline, ensure_ascii=False, indent=2)
+
+    prompt = f"""请将以下英文学术论文大纲翻译为中文。
+
+翻译要求：
+1. 保持学术语言规范
+2. 章节标题翻译准确
+3. 要点翻译清晰简洁
+4. 保留 JSON 格式不变
+
+## 英文大纲
+
+{outline_json}
+
+## 输出要求
+
+请输出翻译后的 JSON 格式，结构与原文完全相同：
+
+```json
+{{
+    "title": "中文标题",
+    "sections": [
+        {{
+            "heading": "中文章节标题",
+            "level": 1,
+            "key_points": ["中文要点1", "中文要点2"],
+            "estimated_words": 500,
+            "related_references": [1, 3]
+        }}
+    ],
+    "abstract_structure": {{
+        "background": "中文背景要点",
+        "methods": "中文方法要点",
+        "results": "中文结果要点",
+        "conclusions": "中文结论要点"
+    }}
+}}
+```
+
+请仅输出 JSON。"""
+
+    try:
+        response = _call_llm(prompt, global_config, project_config)
+        outline_zh = _parse_outline(response)
+        return outline_zh
+    except Exception as e:
+        logger.warning(f"Failed to translate outline: {e}")
+        return outline  # 翻译失败时返回原文
