@@ -652,12 +652,27 @@ cd Paper_Agent_System</code></pre>
 
                 <div class="step">
                     <h4>配置 API Key</h4>
-                    <p>创建或编辑 <code>.env</code> 文件：</p>
-                    <pre><code># OpenAI API
+                    <p>复制 <code>.env.example</code> 为 <code>.env</code>，然后填入你的真实 API Key：</p>
+                    <pre><code>cp .env.example .env</code></pre>
+                    <p>编辑 <code>.env</code> 文件，填入你使用的 API Key：</p>
+                    <pre><code># MiMo API (默认，推荐)
+MIMO_API_KEY=sk-mimo-your-key-here
+MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/anthropic
+
+# OpenAI API (如果需要用 GPT-4o)
 OPENAI_API_KEY=sk-your-key-here
 
-# 或 Anthropic API
+# Anthropic API (如果需要用 Claude)
 ANTHROPIC_API_KEY=sk-ant-your-key-here</code></pre>
+
+                    <div class="tip">
+                        <p><strong>只需填你实际使用的 API Key：</strong></p>
+                        <ul>
+                            <li>如果只用 MiMo → 只填 <code>MIMO_API_KEY</code> 和 <code>MIMO_BASE_URL</code></li>
+                            <li>如果只用 OpenAI → 只填 <code>OPENAI_API_KEY</code></li>
+                            <li>如果混合使用 → 填多个 Key，系统会根据配置自动调用对应的 Key</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="step">
@@ -669,8 +684,99 @@ ANTHROPIC_API_KEY=sk-ant-your-key-here</code></pre>
                 </div>
             </div>
 
-            <div class="tip">
-                <p>PubMed API 要求提供真实邮箱地址，这是 NCBI 的使用政策要求。API Key 是可选的，但可以提高请求速率限制。</p>
+            <h3>2.3 API Key 与 Provider 的关系</h3>
+            <p>系统会根据 <code>input/llm_config.yaml</code> 中配置的 <code>provider</code> 自动调用对应的环境变量：</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Provider</th>
+                        <th>环境变量</th>
+                        <th>示例模型</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>mimo</code></td>
+                        <td><code>MIMO_API_KEY</code>, <code>MIMO_BASE_URL</code></td>
+                        <td>mimo-v2.5-pro, mimo-v2.5-lite</td>
+                    </tr>
+                    <tr>
+                        <td><code>openai</code></td>
+                        <td><code>OPENAI_API_KEY</code></td>
+                        <td>gpt-4o, gpt-4o-mini</td>
+                    </tr>
+                    <tr>
+                        <td><code>anthropic</code></td>
+                        <td><code>ANTHROPIC_API_KEY</code></td>
+                        <td>claude-3-5-sonnet, claude-3-opus</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>2.4 常见配置场景</h3>
+
+            <h4>场景1：只使用 MiMo（推荐）</h4>
+            <pre><code># .env
+MIMO_API_KEY=sk-mimo-xxxxx
+MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/anthropic</code></pre>
+            <pre><code># input/llm_config.yaml
+defaults:
+  provider: "mimo"
+  model: "mimo-v2.5-pro"
+use_defaults: true</code></pre>
+
+            <h4>场景2：只使用 OpenAI</h4>
+            <pre><code># .env
+OPENAI_API_KEY=sk-xxxxx</code></pre>
+            <pre><code># input/llm_config.yaml
+defaults:
+  provider: "openai"
+  model: "gpt-4o-mini"
+use_defaults: true</code></pre>
+
+            <h4>场景3：混合使用不同厂商</h4>
+            <pre><code># .env
+MIMO_API_KEY=sk-mimo-xxxxx
+MIMO_BASE_URL=https://token-plan-cn.xiaomimimo.com/anthropic
+OPENAI_API_KEY=sk-openai-xxxxx
+ANTHROPIC_API_KEY=sk-ant-xxxxx</code></pre>
+            <pre><code># input/llm_config.yaml
+use_defaults: false
+agents:
+  writer:
+    provider: "openai"
+    model: "gpt-4o"
+  reviewer_a:
+    provider: "anthropic"
+    model: "claude-3-5-sonnet"
+  reviewer_b:
+    provider: "anthropic"
+    model: "claude-3-5-sonnet"
+  # 其他用 MiMo
+  analyst:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  literature:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  outliner:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  checker:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"
+  translator:
+    provider: "mimo"
+    model: "mimo-v2.5-pro"</code></pre>
+
+            <div class="warning">
+                <p><strong>注意事项：</strong></p>
+                <ul>
+                    <li>不要泄露 <code>.env</code> 文件，它已在 <code>.gitignore</code> 中被排除</li>
+                    <li>确保 API Key 有足够的额度</li>
+                    <li>如果遇到 API 调用失败，检查 Key 是否正确配置</li>
+                </ul>
             </div>
         </section>
 
