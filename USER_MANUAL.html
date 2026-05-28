@@ -1506,52 +1506,6 @@ done</code></pre>
                 <li>大纲内容（英文和中文）</li>
                 <li>变更摘要（如果有）</li>
             </ul>
-
-            <h3>12.7 上传到 GitHub</h3>
-            <p>将代码备份到 GitHub，便于版本管理和跨设备同步。</p>
-
-            <h4>步骤一：在 GitHub 创建仓库</h4>
-            <ol>
-                <li>打开 <a href="https://github.com/new" target="_blank">https://github.com/new</a></li>
-                <li>填写 Repository name（如 <code>Paper_Agent_System</code>）</li>
-                <li>选择 Private（推荐，保护你的论文数据）</li>
-                <li>不要勾选任何初始化选项</li>
-                <li>点击 Create repository</li>
-            </ol>
-
-            <h4>步骤二：连接并推送</h4>
-            <pre><code># 添加远程仓库
-git remote add origin https://github.com/你的用户名/Paper_Agent_System.git
-
-# 推送代码
-git push -u origin master</code></pre>
-
-            <h4>步骤三：日常使用</h4>
-            <pre><code># 提交修改
-git add .
-git commit -m "描述你做了什么修改"
-
-# 推送到 GitHub
-git push</code></pre>
-
-            <div class="tip">
-                <p><strong>已上传的内容：</strong>系统代码、配置文件、使用手册、项目模板</p>
-                <p><strong>未上传的内容：</strong>项目数据（test_*）、API Key（.env）、运行状态快照</p>
-            </div>
-
-            <h4>从 GitHub 克隆到新电脑</h4>
-            <pre><code># 克隆仓库
-git clone https://github.com/你的用户名/Paper_Agent_System.git
-
-# 进入目录
-cd Paper_Agent_System
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 配置 API Key
-cp .env.example .env
-# 编辑 .env 填入你的 API Key</code></pre>
         </section>
 
         <!-- 页脚 -->
